@@ -15,19 +15,19 @@ extern volatile DRAM_ATTR bool isBackLimitActive;
 static void IRAM_ATTR onSeatLimitActive()
 
 {
-    isSeatLimitActive = (digitalRead(SeatLimitSwitch) == HIGH);
+    isSeatLimitActive = !(digitalRead(SeatLimitSwitch) == HIGH);
 }
 
 static void IRAM_ATTR onSeatExtLimitActive()
 
 {
-    isSeatExtLimitActive = (digitalRead(SeatExtensionLimitSwitch) == HIGH);
+    isSeatExtLimitActive = !(digitalRead(SeatExtensionLimitSwitch) == HIGH);
 }
 
 static void IRAM_ATTR onBackLimitActive()
 
 {
-    isBackLimitActive = (digitalRead(BackLimitSwitch) == HIGH);
+    isBackLimitActive = !(digitalRead(BackLimitSwitch) == HIGH);
 }
 
 #endif

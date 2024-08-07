@@ -43,9 +43,9 @@ void setup()
 
   CurrentMotorController.StopAllMotion();
 
-  isSeatLimitActive = (digitalRead(SeatLimitSwitch) == HIGH);
-  isSeatExtLimitActive = (digitalRead(SeatExtensionLimitSwitch) == HIGH);
-  isBackLimitActive = (digitalRead(BackLimitSwitch) == HIGH);
+  isSeatLimitActive = !(digitalRead(SeatLimitSwitch) == HIGH);
+  isSeatExtLimitActive = !(digitalRead(SeatExtensionLimitSwitch) == HIGH);
+  isBackLimitActive = !(digitalRead(BackLimitSwitch) == HIGH);
 
   CurrentBLEController.BLEsetup();
 

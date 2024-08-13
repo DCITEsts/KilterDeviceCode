@@ -46,7 +46,8 @@ void BLEController::SetupCommsService()
                                                NIMBLE_PROPERTY::WRITE, 256
                                               );
 
-    
+    pCommsOutgoingCharacteristic->setValue(0);
+    pCommsOutgoingCharacteristic->setCallbacks(&chrCallbacks);
 
     pCommsIncomingCharacteristic = pCommsService->createCharacteristic(
                                                CommsIncomingCharacteristicUUID,
@@ -54,11 +55,12 @@ void BLEController::SetupCommsService()
                                                NIMBLE_PROPERTY::WRITE, 256
                                               );
 
-    pCommsService->start();
-    pCommsOutgoingCharacteristic->setValue(0);
-    pCommsOutgoingCharacteristic->setCallbacks(&chrCallbacks);
     pCommsIncomingCharacteristic->setValue(0);
     pCommsIncomingCharacteristic->setCallbacks(&chrCallbacks);
+
+    pCommsService->start();
+    
+    
 }
 
 void BLEController::StartServices()

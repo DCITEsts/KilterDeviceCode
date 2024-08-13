@@ -10,11 +10,12 @@
 class CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
     
     void onRead(NimBLECharacteristic* pCharacteristic){  
-        LatestReadValue = std::stoi(pCharacteristic->getValue().c_str()); //todo fix this needs to write as an int
+        Serial.println("Value read");
     };
 
     void onWrite(NimBLECharacteristic* pCharacteristic) {
-        LatestUUIDWritten = pCharacteristic->getUUID().toString();
+        LatestReadValue = atoi(pCharacteristic->getValue().c_str());
+        Serial.println("Value wrote");
     };
     /** Called before notification or indication is sent,
      *  the value can be changed here before sending if desired.

@@ -7,7 +7,7 @@ void BLEController::BLEsetup() {
     Serial.println(F("Starting NimBLE Server"));
 
     /** sets device name */
-    NimBLEDevice::init("Kilter_Tilter");
+    NimBLEDevice::init(DeviceName);
     BLEDevice::setMTU(256);
 
     NimBLEDevice::setPower(ESP_PWR_LVL_P9); /** +9db */
@@ -63,9 +63,67 @@ void BLEController::SetupCommsService()
     
 }
 
+void BLEController::SetupPositionService()
+{
+    pPositionService = pServer->createService(PositionServiceUUID); //setup service
+
+    //setup all the characteristics
+
+    pMidbackPositionCharacteristic = pPositionService->createCharacteristic(
+                                               MidbackPositionCharacteristicUUID,
+                                               NIMBLE_PROPERTY::READ |
+                                               NIMBLE_PROPERTY::WRITE, 256
+                                              );
+    pMidbackPositionCharacteristic->setValue(0);
+    pMidbackPositionCharacteristic->setCallbacks(&chrCallbacks);
+
+    pMidbackRequestPositionCharacteristic = pPositionService->createCharacteristic(
+                                               MidbackRequestPositionCharacteristicUUID,
+                                               NIMBLE_PROPERTY::READ |
+                                               NIMBLE_PROPERTY::WRITE, 256
+                                              );
+    pMidbackRequestPositionCharacteristic->setValue(0);
+    pMidbackRequestPositionCharacteristic->setCallbacks(&chrCallbacks);
+
+    pSeatAngleCharacteristic = pPositionService->createCharacteristic(
+                                               SeatAngleCharacteristicUUID,
+                                               NIMBLE_PROPERTY::READ |
+                                               NIMBLE_PROPERTY::WRITE, 256
+                                              );
+    pSeatAngleCharacteristic->setValue(0);
+    pSeatAngleCharacteristic->setCallbacks(&chrCallbacks);
+
+    pSeatRequestAngleCharacteristic = pPositionService->createCharacteristic(
+                                               SeatRequestAngleCharacteristicUUID,
+                                               NIMBLE_PROPERTY::READ |
+                                               NIMBLE_PROPERTY::WRITE, 256
+                                              );
+    pSeatRequestAngleCharacteristic->setValue(0);
+    pSeatRequestAngleCharacteristic->setCallbacks(&chrCallbacks);
+
+    pSeatExtensionPositionCharacteristic = pPositionService->createCharacteristic(
+                                               SeatExtensionPositionCharacteristicUUID,
+                                               NIMBLE_PROPERTY::READ |
+                                               NIMBLE_PROPERTY::WRITE, 256
+                                              );
+    pSeatExtensionPositionCharacteristic->setValue(0);
+    pSeatExtensionPositionCharacteristic->setCallbacks(&chrCallbacks);
+
+     pSeatRequestExtensionPositionCharacteristic = pPositionService->createCharacteristic(
+                                               SeatRequestExtensionCharacteristicUUID,
+                                               NIMBLE_PROPERTY::READ |
+                                               NIMBLE_PROPERTY::WRITE, 256
+                                              );
+    pSeatRequestExtensionPositionCharacteristic->setValue(0);
+    pSeatRequestExtensionPositionCharacteristic->setCallbacks(&chrCallbacks);
+
+    pPositionService->start();
+}
+
 void BLEController::StartServices()
 {
     SetupCommsService();
+    SetupPositionService();
 }
 
 void BLEController::StartAdvertising()
@@ -126,7 +184,34 @@ int BLEController::ReadIncomingCommsCharacteristic()
 
 }
 
+void BLEController::WriteMidbackPositionCharacteristic(std::string valToWrite)
+{
+    pMidbackPositionCharacteristic->setValue(valToWrite);
+}
+void BLEController::WriteSeatAngleCharacteristic(std::string valToWrite)
+{
+    pSeatAngleCharacteristic->setValue(valToWrite);
+}
+void BLEController::WriteSeatExtensionPositionCharacteristic(std::string valToWrite)
+{
+    pSeatExtensionPositionCharacteristic->setValue(valToWrite);
+}
 
+int BLEController::ReadMidbackRequestPositionCharacteristic()
+{
+    const char *value = pMidbackRequestPositionCharacteristic->getValue().c_str();
+    return atoi(value);
+}
+int BLEController::ReadWriteSeatRequestAngleCharacteristic()
+{
+    const char *value = pSeatRequestAngleCharacteristic->getValue().c_str();
+    return atoi(value);
+}
+int BLEController::ReadSeatRequestExtensionPositionCharacteristic()
+{
+    const char *value = pSeatRequestExtensionPositionCharacteristic->getValue().c_str();
+    return atoi(value);
+}
 
 int BLEController::CheckConnected()
 {

@@ -5,6 +5,7 @@
 #define MOTORCONTROLLER_H
 
 #include "GlobalPins.h"
+#include "ESP32Encoder.h"
 
 struct MotorDirection
 {
@@ -23,9 +24,10 @@ const struct MotorDirection StopAct = {0,0};
 
 public:
 
-bool ExtendActuator(ActuatorDefinition *Actuator, DeviceState *State);
-bool RetractActuator(ActuatorDefinition *Actuator, DeviceState *State);
+bool ExtendActuator(ActuatorDefinition *Actuator, DeviceState *State);// checks if actuator can be extended and then extends if it can
+bool RetractActuator(ActuatorDefinition *Actuator, DeviceState *State);//checks if actuator can be retracted and then retracts if it can
 void StopActuator(ActuatorDefinition *Actuator);
+bool ActuatorTryGoToPosition(ActuatorDefinition *Actuator, DeviceState *State); //returns true if the actuator can move in the direction of the position or is at position and sets the actuator to move in that direction.
 void StopAllMotion();
 
 private:

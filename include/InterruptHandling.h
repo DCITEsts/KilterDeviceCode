@@ -9,6 +9,8 @@
 extern volatile DRAM_ATTR bool isSeatLimitActive;
 extern volatile DRAM_ATTR bool isSeatExtLimitActive;
 extern volatile DRAM_ATTR bool isBackLimitActive;
+extern volatile DRAM_ATTR bool isMidBackLimitActive;
+
 
 //Functions to interrupt
 
@@ -30,4 +32,8 @@ static void IRAM_ATTR onBackLimitActive()
     isBackLimitActive = (digitalRead(BackLimitSwitch) == HIGH);
 }
 
+static void IRAM_ATTR onMidBackLimitActive()
+{
+    isMidBackLimitActive = (digitalRead(MidBackLimitSwitch) == HIGH);
+}
 #endif

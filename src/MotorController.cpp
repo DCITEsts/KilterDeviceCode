@@ -63,7 +63,41 @@ bool MotorController::RetractActuator(ActuatorDefinition *Actuator, DeviceState 
     }
     return false;
 }
-\
+bool MotorController::ActuatorTryGoToPosition(ActuatorDefinition *Actuator, DeviceState *State)
+{
+    int GoalLocation = 0;
+    int CurrentLocation = 0;
+    switch (Actuator->ActuatorID)
+    {
+    case PivotActID:
+        CurrentLocation = State->MainPivotAngle;
+        GoalLocation = State->CurrentMainPivotGoal;
+        break;
+    case SeatActID:
+        CurrentLocation = State->SeatExtension;
+        GoalLocation = State->CurrentSeatExtensionGoal;
+        break;
+    case MidBackActID:
+        CurrentLocation = State->MidBackExtension;
+        GoalLocation = State->CurrentMidBackGoal;
+        break;
+    default:
+        break;
+    }
+    if(GoalLocation > CurrentLocation)
+    {
+      return ExtendActuator(Actuator, State);
+    }
+    else if(GoalLocation < CurrentLocation)
+    {
+      return RetractActuator(Actuator, State);
+    }
+    else
+    {
+      StopActuator(Actuator);
+      return true;
+    }
+}
 
 void MotorController::StopActuator(ActuatorDefinition *Actuator)
 {

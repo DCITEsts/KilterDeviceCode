@@ -30,6 +30,10 @@ bool MotorController::ExtendActuator(ActuatorDefinition *Actuator, DeviceState *
         Actuator->ActuatorState = ExtendingState;
         return true;
     }
+    else
+    {
+        StopAllMotion();
+    }
     return false;
 }
 
@@ -102,7 +106,7 @@ bool MotorController::ActuatorTryGoToPosition(ActuatorDefinition *Actuator, Devi
 void MotorController::StopActuator(ActuatorDefinition *Actuator)
 {
     digitalWrite(Actuator->PinA, StopAct.InputPin1Value);
-    digitalWrite(Actuator->PinA, StopAct.InputPin2Value);
+    digitalWrite(Actuator->PinB, StopAct.InputPin2Value);
     Actuator->ActuatorState = StoppedState;
 }
 

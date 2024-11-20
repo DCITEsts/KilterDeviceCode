@@ -12,7 +12,7 @@ ESP32Encoder MidBackEncoder;
 ESP32Encoder SeatAngleEncoder;
 ESP32Encoder SeatExtensionEncoder;
 
-void UpdateDevicestate(); // helper function to update all switch locations and positions
+void UpdateDevicestate(); // helper function to update all switch locations and positions.  will also zero encoders when relevant limit is active
 
 void ThrowError(String ErrorString); // prints an error string to the serial and lets BLE know about internal error but no details over ble
 

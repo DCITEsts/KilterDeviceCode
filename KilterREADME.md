@@ -43,7 +43,8 @@ ENCODER POSITIONS:
 
 Encoder positions are not continuously updated in BLE to save on bandwidth.  Positions are only updated when a command is received that effects the actuator movement, when an actuator completes moving to a position, when an actuator fails to move to a position or when the Command UpdatePositions (77) is sent.  Encoder positions are updated continuously internally on the embedded device.
 
-Encoders are zeroed automatically when the actuator for that encoder is in the fully retracted position.  If any actuator is extended when device is initially powered on then the 0 position for that actuator's encoder will be  incorrect leading to incorrect encoder readings for that actuator.  To zero an out of sync encoder you just have to fully retract the actuator that encoder is associated with.
+Encoders are zeroed automatically when the actuator for that encoder is in the fully retracted position.  If any actuator is extended when device is initially powered on then the 0 position for that actuator's encoder will be  incorrect leading to incorrect encoder readings for that actuator.  To zero an out of sync encoder you just have to fully retract the actuator t
+hat encoder is associated with.
 
 MOVING AN ACTUATOR TO A SPECIFIC POSITION:
 

@@ -217,7 +217,7 @@ int BLEController::CheckConnected()
 {
     if(pServer->getConnectedCount() > 0)
     {
-        if (pServer->getConnectedCount() > 3)
+        if (pServer->getConnectedCount() > MaxConnectionsBLE)
         {
             pServer->stopAdvertising();
         }

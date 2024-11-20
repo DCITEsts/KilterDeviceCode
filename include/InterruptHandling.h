@@ -6,6 +6,8 @@
 #include <Arduino.h>
 #include "GlobalPins.h"
 
+//internal interrupt values set by the interrupts to determine if a switch was pressed
+//the way this works now we could just switch to chekcing these in main loop if desired
 extern volatile DRAM_ATTR bool isSeatLimitActive;
 extern volatile DRAM_ATTR bool isSeatExtLimitActive;
 extern volatile DRAM_ATTR bool isBackLimitActive;

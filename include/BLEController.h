@@ -22,11 +22,13 @@
 #define SeatExtensionPositionCharacteristicUUID "SEP-0757-eff5-4bd3-a4ee-8886edf69140"//Read to get the seat extension position. DONT WRITE TO
 #define SeatRequestExtensionCharacteristicUUID "SRP-a825-9ba5-45a6-b312-def5e2ddbe72"//Write to set a new seat extension goal position
 
+#define MaxConnectionsBLE 3 //set the max BLE Connections before advertising is stopped
+
 class BLEController
 {
 public:
 
-    //ServicePointers
+    //Service and characteristic pointers
 
     NimBLEService* pCommsService;
     NimBLECharacteristic* pCommsOutgoingCharacteristic;
@@ -40,15 +42,10 @@ public:
     NimBLECharacteristic* pSeatExtensionPositionCharacteristic;
     NimBLECharacteristic* pSeatRequestExtensionPositionCharacteristic;
 
-    void SetupCommsService();
-    void SetupPositionService();
+    void BLEsetup();// run once to setup BLE and initialize
 
-    void StartServices();
-    void StartAdvertising();
-    void NotifyCommsService();
-
-    void BLEsetup();
-
+    //Functions to write a value to the respective characteristic
+    //std::string will be converted to a c style string and written
     void WriteOutgoingCommsCharacteristic(std::string valToWrite);
     int ReadIncomingCommsCharacteristic();
 
@@ -56,11 +53,26 @@ public:
     void WriteSeatAngleCharacteristic(std::string valToWrite);
     void WriteSeatExtensionPositionCharacteristic(std::string valToWrite);
 
+    //Functions to read characteristics
+    //All characteristics should only have ints written to them
+    //A non integer value is just going to be ignored and return 0
     int ReadMidbackRequestPositionCharacteristic();
     int ReadWriteSeatRequestAngleCharacteristic();
     int ReadSeatRequestExtensionPositionCharacteristic();
 
-    int CheckConnected();
+    int CheckConnected();//checks how many devices are connected
+
+private:
+
+    //Functions to setup individual services
+    void SetupCommsService();
+    void SetupPositionService();
+
+    //functions run to initialize BLE
+    void StartServices();
+    void StartAdvertising();
+    void NotifyCommsService();
+
 };
 
 #endif

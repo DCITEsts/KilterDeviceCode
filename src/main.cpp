@@ -7,23 +7,26 @@
 #include "ESP32Encoder.h"
 #include "string.h"
 
+//Encoder Vars
 ESP32Encoder MidBackEncoder;
 ESP32Encoder SeatAngleEncoder;
 ESP32Encoder SeatExtensionEncoder;
 
-// put function declarations here:
 void UpdateDevicestate(); // helper function to update all switch locations and positions
 
 void ThrowError(String ErrorString); // prints an error string to the serial and lets BLE know about internal error but no details over ble
 
 void StopAllActuatorsMovingToSpecificLocation(); // helper function to cancel any actuators currently moving to specific locations.  Actuators that haven't completed their move will fail.
 
-static MotorController CurrentMotorController;
+//Motor Controller and BLE Controller vars for main
+static MotorController CurrentMotorController; //one controller handles all 3 motors
 static BLEController CurrentBLEController;
 
-void SetCurrentOutgoingRequest(int NewRequest); // notifies the ble device of new outgoing request state will only send new states if they don't match current state
+// notifies the ble device of new outgoing request state will only send new states if they don't match current state.  
+//All state changes should ideally be handled by this function so that state gets written write
+void SetCurrentOutgoingRequest(int NewRequest); 
 
-bool bWantsHome = false;
+bool bWantsHome = false; // set to start device going home.  Homing will be handled in the main loop
 
 void setup()
 {
@@ -80,7 +83,7 @@ void setup()
   CurrentDeviceState.MainPivotAngle = SeatAngleEncoder.getCount();
   CurrentDeviceState.SeatExtension = SeatExtensionEncoder.getCount();
 
-  //set the initial count on BLE connection.  Just a sanity check since they should all be 0.
+  //set the initial count on BLE connection.  Just a sanity check since they should all be 0 as long as they are all connected.
   CurrentBLEController.WriteMidbackPositionCharacteristic(std::to_string(MidBackEncoder.getCount()));
   CurrentBLEController.WriteSeatAngleCharacteristic(std::to_string(SeatAngleEncoder.getCount()));
   CurrentBLEController.WriteSeatExtensionPositionCharacteristic(std::to_string(MidBackEncoder.getCount()));
@@ -134,15 +137,16 @@ void loop()
 
 #pragma region HandleActuatorsGoingToLocations
 
+  //only enter if some actuator wants to go to position
   if (CurrentDeviceState.bMainPivotIsGoingToLocation || CurrentDeviceState.bSeatExtensionIsGoingToLocation || CurrentDeviceState.bMidBackIsgoingToLocation)
   {
-    if (CurrentDeviceState.bMainPivotIsGoingToLocation)
+    if (CurrentDeviceState.bMainPivotIsGoingToLocation) // handle main pivot actuator going to location
     {
       CurrentBLEController.WriteSeatAngleCharacteristic(std::to_string(CurrentDeviceState.MainPivotAngle));
-      bool bGoingToLocation = CurrentMotorController.ActuatorTryGoToPosition(&PivotActuator, &CurrentDeviceState);
+      bool bGoingToLocation = CurrentMotorController.ActuatorTryGoToPosition(&PivotActuator, &CurrentDeviceState); //check if we can actually go in the direction of the location
       if (bGoingToLocation)
       {
-        if (CurrentDeviceState.MainPivotAngle == CurrentDeviceState.CurrentMainPivotGoal)
+        if (CurrentDeviceState.MainPivotAngle == CurrentDeviceState.CurrentMainPivotGoal)// Check if we're at the location already
         {
           CurrentBLEController.WriteOutgoingCommsCharacteristic(std::to_string(SucceededToReachSeatAngleGoalLocationRequest));
           Serial.println("got to location Main Pivot");
@@ -156,13 +160,13 @@ void loop()
         Serial.println("failed go to location Main Pivot");
       }
     }
-    if (CurrentDeviceState.bSeatExtensionIsGoingToLocation)
+    if (CurrentDeviceState.bSeatExtensionIsGoingToLocation)// handle Seat extension actuator going to location
     {
       CurrentBLEController.WriteSeatExtensionPositionCharacteristic(std::to_string(CurrentDeviceState.MainPivotAngle));
-      bool bGoingToLocation = CurrentMotorController.ActuatorTryGoToPosition(&SeatExtensionActuator, &CurrentDeviceState);
+      bool bGoingToLocation = CurrentMotorController.ActuatorTryGoToPosition(&SeatExtensionActuator, &CurrentDeviceState);//check if we can actually go in the direction of the location
       if (bGoingToLocation)
       {
-        if (CurrentDeviceState.SeatExtension == CurrentDeviceState.CurrentSeatExtensionGoal)
+        if (CurrentDeviceState.SeatExtension == CurrentDeviceState.CurrentSeatExtensionGoal)// Check if we're at the location already
         {
           CurrentBLEController.WriteOutgoingCommsCharacteristic(std::to_string(SucceededToReachSeatExtensionGoalLocationRequest));
           CurrentDeviceState.bSeatExtensionIsGoingToLocation = false;
@@ -176,13 +180,13 @@ void loop()
         Serial.println("Failed go to location Seat Extension");
       }
     }
-    if (CurrentDeviceState.bMidBackIsgoingToLocation)
+    if (CurrentDeviceState.bMidBackIsgoingToLocation)// handle MidBack actuator going to location
     {
       CurrentBLEController.WriteMidbackPositionCharacteristic(std::to_string(CurrentDeviceState.MidBackExtension));
-      bool bGoingToLocation = CurrentMotorController.ActuatorTryGoToPosition(&MidBackActuator, &CurrentDeviceState);
+      bool bGoingToLocation = CurrentMotorController.ActuatorTryGoToPosition(&MidBackActuator, &CurrentDeviceState);//check if we can actually go in the direction of the location
       if (bGoingToLocation)
       {
-        if (CurrentDeviceState.MidBackExtension == CurrentDeviceState.CurrentMidBackGoal)
+        if (CurrentDeviceState.MidBackExtension == CurrentDeviceState.CurrentMidBackGoal)// Check if we're at the location already
         {
           CurrentBLEController.WriteOutgoingCommsCharacteristic(std::to_string(SucceededToReachMidBackGoalLocationRequest));
           CurrentDeviceState.bMidBackIsgoingToLocation = false;
@@ -221,7 +225,7 @@ void loop()
 
 #pragma region HandleRequestsSwitch
 
-  //Giant switch statement handles state transitions
+  //Giant switch statement handles state transitions based on request written to currentrequest
   switch (CurrentRequest)
   {
   case NoCommand:
@@ -534,11 +538,11 @@ void UpdateDevicestate()
   }
   if (isSeatExtLimitActive)
   {
-    SeatExtensionEncoder.clearCount(); // the seat extension is at 0 point so reset the encoder to rezero it
+    SeatExtensionEncoder.clearCount(); // the seat Extension is at 0 point to reset the encoder to 0 in case it is a little off
   }
   if(isMidBackLimitActive)
   {
-    MidBackEncoder.clearCount();
+    MidBackEncoder.clearCount();// the Midback is at 0 point to reset the encoder to 0 in case it is a little off
   }
 
   if ((!CurrentDeviceState.bBackLimitActive || CurrentDeviceState.bSeatLimitActive) && SeatExtensionActuator.ActuatorState == ExtendingState)

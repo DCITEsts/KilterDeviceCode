@@ -10,7 +10,7 @@
 
 struct DeviceState
 {
-    // Active means limit switch is pressed
+    // Active means limit switch is pressed.  Limit switches pulled HIGH are active
     bool bSeatLimitActive;
     bool bBackLimitActive;
     bool bSeatExtensionLimitActive;
@@ -88,11 +88,6 @@ extern struct ActuatorDefinition MidBackActuator;
 #define SeatAngleEncoderPinB 25
 #define SeatExtensionEncoderPinB 17
 
-
-extern volatile DRAM_ATTR int MidBackEncoderVal;
-extern volatile DRAM_ATTR int SeatAngleEncoderVal;
-extern volatile DRAM_ATTR int SeatExtensionEncoderVal;
-
 #pragma endregion
 
 #pragma region BLEGlobals
@@ -127,7 +122,7 @@ extern int LatestReadValue;// latest value of the request characteristic
 
 //Outgoing device state Requests Below
 //These are commands you can read from the device that determine state
-//These will be written to the outgoing request characteristic and used to communicate state to the BLE
+//These will be written to the outgoing request characteristic and used to communicate state to the BLE device
 #define InternalErrorRequest 34404
 #define IdleRequest 11
 #define ReceivedCommandRequest 12
